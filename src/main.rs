@@ -7,6 +7,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, setup)
+        .add_systems(Update, move_shapes)
         .run();
 }
 
@@ -58,5 +59,12 @@ fn setup(
             Transform::from_xyz(50. - (width / 2 as f32) + (i * 120) as f32, 0.0, 0.0),
             Shape,
         ));
+    }
+}
+
+fn move_shapes(mut query: Query<&mut Transform, With<Shape>>) {
+    for mut transform in query.iter_mut() {
+        transform.translation.x += 1.0;
+        transform.translation.y += 1.0;
     }
 }
