@@ -1344,6 +1344,7 @@ name = "bouncing_shapes"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "rand",
 ]
 
 [[package]]
