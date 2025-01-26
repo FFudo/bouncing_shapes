@@ -32,16 +32,8 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut commands: Commands,
-    window_query: Query<&Window>,
 ) {
     let mut rng = rand::thread_rng();
-
-    let width: f32;
-    if let Ok(window) = window_query.get_single() {
-        width = window.width();
-    } else {
-        width = 1.0;
-    }
 
     commands.spawn(Camera2d::default());
 
@@ -70,7 +62,7 @@ fn setup(
         commands.spawn((
             Mesh2d(shape),
             MeshMaterial2d(materials.add(color)),
-            Transform::from_xyz(50. - (width / 2 as f32) + (i * 120) as f32, 0.0, 0.0),
+            Transform::from_xyz(rng.gen_range(-200..200) as f32, rng.gen_range(-200..200) as f32, i as f32),
             Shape,
         ));
     }
