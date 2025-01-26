@@ -1,5 +1,6 @@
 use bevy::{prelude::*, window::*};
-use rand::Rng;
+use rand::{rngs::StdRng, Rng, SeedableRng};
+use std::sync::Mutex;
 
 const MAX_SHAPES: i32 = 5;
 
@@ -7,8 +8,12 @@ const WINDOW_WIDTH: f32 = 1080.0;
 const WINDOW_HEIGHT: f32 = 720.0;
 
 fn main() {
+    let seed = rand::thread_rng().gen();
+    let rng = StdRng::from_seed(seed);
+
     App::new()
         .insert_resource(ImpulsTimer(Timer::from_seconds(5., TimerMode::Repeating)))
+        .insert_resource(RngResource(Mutex::new(rng)))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "Bouncing Shapes".to_string(),
@@ -22,9 +27,15 @@ fn main() {
             close_when_requested: true,
         }))
         .add_systems(Startup, setup)
-        .add_systems(Update, (apply_impuls, apply_friction, apply_velocity).chain())
+        .add_systems(
+            Update,
+            (apply_impuls, apply_friction, apply_velocity).chain(),
+        )
         .run();
 }
+
+#[derive(Resource)]
+struct RngResource(Mutex<StdRng>);
 
 #[derive(Resource)]
 struct ImpulsTimer(Timer);
@@ -80,7 +91,7 @@ fn setup(
             Impuls,
             Velocity {
                 velocity: Vec2::ZERO,
-                friction: 0.98,
+                friction: 0.9,
             },
         ));
     }
@@ -88,24 +99,30 @@ fn setup(
 
 fn apply_impuls(
     time: Res<Time>,
+    rng: Res<RngResource>,
     mut timer: ResMut<ImpulsTimer>,
     mut query: Query<&mut Velocity, With<Impuls>>,
 ) {
     if timer.0.tick(time.delta()).just_finished() {
+        let mut rng = rng.0.lock().unwrap();
         for mut velocity in query.iter_mut() {
-            let mut rng = rand::thread_rng();
-            let dir_x = if rng.gen_bool(0.5) { 1 } else { -1 } as f32;
-            let dir_y = if rng.gen_bool(0.5) { 1 } else { -1 } as f32;
-            let impuls = Vec2::new(rng.gen_range(250..1000) as f32 * dir_x, rng.gen_range(250..1000) as f32 * dir_y);
-            velocity.velocity = impuls;
+            if rng.gen_bool(0.4) {
+                let dir_x = if rng.gen_bool(0.5) { 1 } else { -1 } as f32;
+                let dir_y = if rng.gen_bool(0.5) { 1 } else { -1 } as f32;
+                let impuls = Vec2::new(
+                    rng.gen_range(0..300) as f32 * dir_x,
+                    rng.gen_range(0..300) as f32 * dir_y,
+                );
+                velocity.velocity = impuls;
+            }
         }
     }
 }
 
-fn apply_friction(mut query: Query<&mut Velocity>) {
+fn apply_friction(time: Res<Time>, mut query: Query<&mut Velocity>) {
     for mut velocity in query.iter_mut() {
         let friction = velocity.friction;
-        velocity.velocity *= friction;
+        velocity.velocity *= friction.powf(time.delta_secs());
 
         if velocity.velocity.length() <= 0.001 {
             velocity.velocity = Vec2::ZERO;
@@ -113,8 +130,8 @@ fn apply_friction(mut query: Query<&mut Velocity>) {
     }
 }
 
-fn apply_velocity(time: Res<Time>, mut query: Query<(&Velocity, &mut Transform), With<Impuls>>) {
+fn apply_velocity(time: Res<Time>, mut query: Query<(&Velocity, &mut Transform)>) {
     for (velocity, mut transform) in query.iter_mut() {
-        transform.translation += velocity.velocity.extend(0.0) * time.delta().as_secs_f32();
+        transform.translation += velocity.velocity.extend(0.0) * time.delta_secs();
     }
 }
