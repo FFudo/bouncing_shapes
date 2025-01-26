@@ -53,11 +53,11 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut commands: Commands,
+    rng: Res<RngResource>,
 ) {
-    let mut rng = rand::thread_rng();
-
     commands.spawn(Camera2d::default());
 
+    let mut rng = rng.0.lock().unwrap();
     let mut shapes = Vec::new();
 
     for _ in 0..MAX_SHAPES {
@@ -124,7 +124,7 @@ fn apply_friction(time: Res<Time>, mut query: Query<&mut Velocity>) {
         let friction = velocity.friction;
         velocity.velocity *= friction.powf(time.delta_secs());
 
-        if velocity.velocity.length() <= 0.001 {
+        if velocity.velocity.length() <= 0.01 {
             velocity.velocity = Vec2::ZERO;
         }
     }
