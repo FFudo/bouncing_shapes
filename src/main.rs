@@ -12,7 +12,7 @@ fn main() {
     let rng = StdRng::from_seed(seed);
 
     App::new()
-        .insert_resource(ImpulsTimer(Timer::from_seconds(5., TimerMode::Repeating)))
+        .insert_resource(ImpulsTimer(Timer::from_seconds(2.5, TimerMode::Repeating)))
         .insert_resource(RngResource(Mutex::new(rng)))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
@@ -29,7 +29,13 @@ fn main() {
         .add_systems(Startup, setup)
         .add_systems(
             Update,
-            (apply_impuls, apply_friction, apply_velocity).chain(),
+            (
+                apply_impuls,
+                apply_friction,
+                apply_wall_collision,
+                apply_velocity,
+            )
+                .chain(),
         )
         .run();
 }
@@ -133,5 +139,20 @@ fn apply_friction(time: Res<Time>, mut query: Query<&mut Velocity>) {
 fn apply_velocity(time: Res<Time>, mut query: Query<(&Velocity, &mut Transform)>) {
     for (velocity, mut transform) in query.iter_mut() {
         transform.translation += velocity.velocity.extend(0.0) * time.delta_secs();
+    }
+}
+
+fn apply_wall_collision(mut query: Query<(&mut Velocity, &Transform)>) {
+    for (mut velocity, transform) in query.iter_mut() {
+        if transform.translation.x > WINDOW_WIDTH / 2.0
+            || transform.translation.x < -WINDOW_WIDTH / 2.0
+        {
+            velocity.velocity.x *= -1.0;
+        }
+        if transform.translation.y > WINDOW_HEIGHT / 2.0
+            || transform.translation.y < -WINDOW_HEIGHT / 2.0
+        {
+            velocity.velocity.y *= -1.0;
+        }
     }
 }
