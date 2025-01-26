@@ -1,11 +1,25 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::*};
 use rand::Rng;
 
-const MAX_SHAPES: i32 = 15;
+const MAX_SHAPES: i32 = 5;
+
+const WINDOW_WIDTH: f32 = 1080.0;
+const WINDOW_HEIGHT: f32 = 720.0;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "Bouncing Shapes".to_string(),
+                mode: WindowMode::Windowed,
+                resolution: WindowResolution::new(WINDOW_WIDTH, WINDOW_HEIGHT),
+                window_theme: Some(WindowTheme::Dark),
+                resizable: false,
+                ..default()
+            }),
+            exit_condition: ExitCondition::OnPrimaryClosed,
+            close_when_requested: true,
+        }))
         .add_systems(Startup, setup)
         .add_systems(Update, move_shapes)
         .run();
