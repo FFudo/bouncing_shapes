@@ -2,10 +2,12 @@ use bevy::{prelude::*, window::*};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::sync::Mutex;
 
-const MAX_SHAPES: i32 = 5;
+const MAX_SHAPES: i32 = 6;
 
 const WINDOW_WIDTH: f32 = 1080.0;
 const WINDOW_HEIGHT: f32 = 720.0;
+const CIRCLE_SIZE: f32 = 50.0;
+const RECTANGLE_SIZE: (f32, f32) = (100.0, 75.0);
 
 fn main() {
     let seed = rand::thread_rng().gen();
@@ -67,19 +69,30 @@ fn setup(
     let mut shapes = Vec::new();
 
     for _ in 0..MAX_SHAPES {
-        match rng.gen_range(0..3) {
+        match rng.gen_range(0..=5) {
             0 => {
-                shapes.push(meshes.add(Circle::new(50.0)));
+                shapes.push(meshes.add(Circle::new(CIRCLE_SIZE)));
             }
             1 => {
-                shapes.push(meshes.add(Rectangle::new(50.0, 100.0)));
+                shapes.push(meshes.add(Rectangle::new(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)));
             }
             2 => {
-                shapes.push(meshes.add(Annulus::new(25.0, 50.0)));
+                shapes.push(meshes.add(Annulus::new(CIRCLE_SIZE / 2.0, CIRCLE_SIZE)));
             }
-            _ => {
-                shapes.push(meshes.add(Rhombus::new(75.0, 100.0)));
+            3 => {
+                shapes.push(meshes.add(Rhombus::new(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)));
             }
+            4 => {
+                shapes.push(meshes.add(RegularPolygon::new(CIRCLE_SIZE, 12)));
+            }
+            5 => {
+                shapes.push(meshes.add(Triangle2d::new(
+                    Vec2::Y * 50.0,
+                    Vec2::new(-50.0, -50.0),
+                    Vec2::new(50.0, -50.0),
+                )));
+            }
+            _ => {}
         }
     }
 
