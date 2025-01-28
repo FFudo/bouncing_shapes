@@ -2,6 +2,9 @@ use bevy::{prelude::*, window::*};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::sync::Mutex;
 
+mod components;
+use crate::components::*;
+
 const MAX_SHAPES: i32 = 6;
 
 const WINDOW_WIDTH: f32 = 1080.0;
@@ -40,49 +43,6 @@ fn main() {
                 .chain(),
         )
         .run();
-}
-
-#[derive(Resource)]
-struct RngResource(Mutex<StdRng>);
-
-#[derive(Resource)]
-struct ImpulsTimer(Timer);
-
-#[derive(Component)]
-struct Impuls;
-
-#[derive(Component)]
-struct Velocity {
-    velocity: Vec2,
-    friction: f32,
-}
-
-#[derive(Component)]
-struct RectangleShape {
-    width: f32,
-    height: f32,
-}
-
-#[derive(Component)]
-struct CircleShape {
-    radius: f32,
-}
-
-#[derive(Component)]
-struct TriangleShape {
-    points: [(f32, f32); 3],
-}
-
-#[derive(Component)]
-struct RegularPolygonShape {
-    circumradius: f32,
-    sides: f32,
-}
-
-#[derive(Component)]
-struct RhombusShape {
-    diagonal1: f32,
-    diagonal2: f32,
 }
 
 fn setup(
