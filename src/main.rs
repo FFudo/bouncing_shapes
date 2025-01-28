@@ -57,6 +57,34 @@ struct Velocity {
     friction: f32,
 }
 
+#[derive(Component)]
+struct RectangleShape {
+    width: f32,
+    height: f32,
+}
+
+#[derive(Component)]
+struct CircleShape {
+    radius: f32,
+}
+
+#[derive(Component)]
+struct TriangleShape {
+    points: [(f32, f32); 3],
+}
+
+#[derive(Component)]
+struct RegularPolygonShape {
+    circumradius: f32,
+    sides: f32,
+}
+
+#[derive(Component)]
+struct RhombusShape {
+    diagonal1: f32,
+    diagonal2: f32,
+}
+
 fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
