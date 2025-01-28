@@ -3,7 +3,10 @@ use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::sync::Mutex;
 
 mod components;
+mod SpawnShapes;
+
 use crate::components::*;
+use crate::SpawnShapes::SpawnShapesPlugin;
 
 const MAX_SHAPES: i32 = 6;
 
@@ -31,6 +34,7 @@ fn main() {
             exit_condition: ExitCondition::OnPrimaryClosed,
             close_when_requested: true,
         }))
+        .add_plugins(SpawnShapesPlugin)
         .add_systems(Startup, setup)
         .add_systems(
             Update,
