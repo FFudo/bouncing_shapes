@@ -1,9 +1,4 @@
 use bevy::prelude::*;
-use std::sync::Mutex;
-use rand::rngs::StdRng;
-
-#[derive(Resource)]
-pub struct RngResource(pub Mutex<StdRng>);
 
 #[derive(Resource)]
 pub struct ImpulsTimer(pub Timer);
