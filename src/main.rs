@@ -40,9 +40,7 @@ fn main() {
         .run();
 }
 
-fn setup(
-    mut commands: Commands
-) {
+fn setup(mut commands: Commands) {
     commands.spawn(Camera2d::default());
 }
 
@@ -87,26 +85,40 @@ fn apply_velocity(time: Res<Time>, mut query: Query<(&Velocity, &mut Transform)>
 fn apply_wall_collision(mut query: Query<(&mut Velocity, &Transform, &ShapeType)>) {
     for (mut velocity, transform, shapetype) in query.iter_mut() {
         match shapetype {
-            ShapeType::Circle(radius) | ShapeType::Annulus(radius, _) | ShapeType::RegularPolygon(radius, _ )=> {
+            ShapeType::Circle(radius)
+            | ShapeType::Annulus(_, radius)
+            | ShapeType::RegularPolygon(radius, _) => {
                 if transform.translation.x + radius > WINDOW_WIDTH / 2.0
-                || transform.translation.x - radius < -WINDOW_WIDTH / 2.0
+                    || transform.translation.x - radius < -WINDOW_WIDTH / 2.0
                 {
                     velocity.velocity.x *= -1.0;
                 }
                 if transform.translation.y + radius > WINDOW_HEIGHT / 2.0
-                || transform.translation.y - radius < -WINDOW_HEIGHT / 2.0
+                    || transform.translation.y - radius < -WINDOW_HEIGHT / 2.0
                 {
                     velocity.velocity.y *= -1.0;
                 }
             }
-            ShapeType::Rectangle(width, height ) | ShapeType::Rhombus(width, height) => {
-                if transform.translation.x + width > WINDOW_WIDTH / 2.0
-                || transform.translation.x - width < -WINDOW_WIDTH / 2.0
+            ShapeType::Rectangle(width, height) | ShapeType::Rhombus(width, height) => {
+                if transform.translation.x + (width / 2.0) > WINDOW_WIDTH / 2.0
+                    || transform.translation.x - (width / 2.0) < -WINDOW_WIDTH / 2.0
                 {
                     velocity.velocity.x *= -1.0;
                 }
-                if transform.translation.y + height > WINDOW_HEIGHT / 2.0
-                || transform.translation.y - height < -WINDOW_HEIGHT / 2.0
+                if transform.translation.y + (height / 2.0) > WINDOW_HEIGHT / 2.0
+                    || transform.translation.y - (height / 2.0) < -WINDOW_HEIGHT / 2.0
+                {
+                    velocity.velocity.y *= -1.0;
+                }
+            }
+            ShapeType::Triangle(v1, v2, v3) => {
+                if transform.translation.x + v3.x > WINDOW_WIDTH / 2.0
+                    || transform.translation.x + v2.x < -WINDOW_WIDTH / 2.0
+                {
+                    velocity.velocity.x *= -1.0;
+                }
+                if transform.translation.y + v1.y > WINDOW_HEIGHT / 2.0
+                    || transform.translation.y + v2.y < -WINDOW_HEIGHT / 2.0
                 {
                     velocity.velocity.y *= -1.0;
                 }
