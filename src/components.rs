@@ -13,30 +13,12 @@ pub struct Velocity {
 }
 
 #[derive(Component)]
-pub struct RectangleShape {
-    pub width: f32,
-    pub height: f32,
-}
-
-#[derive(Component)]
-pub struct CircleShape {
-    pub radius: f32,
-}
-
-#[derive(Component)]
-pub struct TriangleShape {
-    pub points: [(f32, f32); 3],
-}
-
-#[derive(Component)]
-pub struct RegularPolygonShape {
-    pub circumradius: f32,
-    pub sides: f32,
-}
-
-#[derive(Component)]
-pub struct RhombusShape {
-    pub diagonal1: f32,
-    pub diagonal2: f32,
+pub enum ShapeType {
+    Circle(f32),          // radius
+    Rectangle(f32, f32),  // width, height
+    Annulus(f32, f32),    // inner radius, outer radius
+    Rhombus(f32, f32),    // width, height
+    RegularPolygon(f32, usize), // radius, sides
+    Triangle(Vec2, Vec2, Vec2), // vertices
 }
 

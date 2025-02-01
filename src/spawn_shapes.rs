@@ -26,7 +26,7 @@ fn spawn_shapes(
         let color = Color::hsl(360. * i as f32 / MAX_SHAPES as f32, 0.95, 0.7);
 
         commands.spawn((
-            Mesh2d(shape),
+            Mesh2d(shape.0),
             MeshMaterial2d(materials.add(color)),
             Transform::from_xyz(
                 rng.gen_range(-200..200) as f32,
@@ -38,37 +38,59 @@ fn spawn_shapes(
                 velocity: Vec2::ZERO,
                 friction: 0.9,
             },
+            shape.1,
         ));
     }
 }
 
-fn get_random_shapes(mut meshes: ResMut<'_, Assets<Mesh>>) -> Vec<Handle<Mesh>> {
+fn get_random_shapes(mut meshes: ResMut<'_, Assets<Mesh>>) -> Vec<(Handle<Mesh>, ShapeType)> {
     let mut shapes = Vec::new();
     let mut rng = rand::thread_rng();
 
     for _ in 0..MAX_SHAPES {
         match rng.gen_range(0..=5) {
             0 => {
-                shapes.push(meshes.add(Circle::new(CIRCLE_SIZE)));
+                shapes.push((
+                    meshes.add(Circle::new(CIRCLE_SIZE)),
+                    ShapeType::Circle(CIRCLE_SIZE)
+                ));
             }
             1 => {
-                shapes.push(meshes.add(Rectangle::new(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)));
+                shapes.push((
+                    meshes.add(Rectangle::new(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)),
+                    ShapeType::Rectangle(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)
+                ));
             }
             2 => {
-                shapes.push(meshes.add(Annulus::new(CIRCLE_SIZE / 2.0, CIRCLE_SIZE)));
+                shapes.push((
+                    meshes.add(Annulus::new(CIRCLE_SIZE / 2.0, CIRCLE_SIZE)),
+                    ShapeType::Annulus(CIRCLE_SIZE / 2.0, CIRCLE_SIZE)
+                ));
             }
             3 => {
-                shapes.push(meshes.add(Rhombus::new(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)));
+                shapes.push((
+                    meshes.add(Rhombus::new(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)),
+                    ShapeType::Rhombus(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)
+                ));
             }
             4 => {
-                shapes.push(meshes.add(RegularPolygon::new(CIRCLE_SIZE, 12)));
+                shapes.push((
+                    meshes.add(RegularPolygon::new(CIRCLE_SIZE, 12)),
+                    ShapeType::RegularPolygon(CIRCLE_SIZE, 12)
+                ));
             }
             5 => {
-                shapes.push(meshes.add(Triangle2d::new(
-                    Vec2::Y * 50.0,
-                    Vec2::new(-50.0, -50.0),
-                    Vec2::new(50.0, -50.0),
-                )));
+                shapes.push((
+                    meshes.add(Triangle2d::new(
+                        Vec2::Y * 50.0,
+                        Vec2::new(-50.0, -50.0),
+                        Vec2::new(50.0, -50.0)
+                    )),
+                    ShapeType::Triangle(
+                        Vec2::Y * 50.0,
+                        Vec2::new(-50.0, -50.0),
+                        Vec2::new(50.0, -50.0))
+                ));
             }
             _ => {}
         }

@@ -84,17 +84,34 @@ fn apply_velocity(time: Res<Time>, mut query: Query<(&Velocity, &mut Transform)>
     }
 }
 
-fn apply_wall_collision(mut query: Query<(&mut Velocity, &Transform)>) {
-    for (mut velocity, transform) in query.iter_mut() {
-        if transform.translation.x > WINDOW_WIDTH / 2.0
-            || transform.translation.x < -WINDOW_WIDTH / 2.0
-        {
-            velocity.velocity.x *= -1.0;
-        }
-        if transform.translation.y > WINDOW_HEIGHT / 2.0
-            || transform.translation.y < -WINDOW_HEIGHT / 2.0
-        {
-            velocity.velocity.y *= -1.0;
+fn apply_wall_collision(mut query: Query<(&mut Velocity, &Transform, &ShapeType)>) {
+    for (mut velocity, transform, shapetype) in query.iter_mut() {
+        match shapetype {
+            ShapeType::Circle(radius) | ShapeType::Annulus(radius, _) | ShapeType::RegularPolygon(radius, _ )=> {
+                if transform.translation.x + radius > WINDOW_WIDTH / 2.0
+                || transform.translation.x - radius < -WINDOW_WIDTH / 2.0
+                {
+                    velocity.velocity.x *= -1.0;
+                }
+                if transform.translation.y + radius > WINDOW_HEIGHT / 2.0
+                || transform.translation.y - radius < -WINDOW_HEIGHT / 2.0
+                {
+                    velocity.velocity.y *= -1.0;
+                }
+            }
+            ShapeType::Rectangle(width, height ) | ShapeType::Rhombus(width, height) => {
+                if transform.translation.x + width > WINDOW_WIDTH / 2.0
+                || transform.translation.x - width < -WINDOW_WIDTH / 2.0
+                {
+                    velocity.velocity.x *= -1.0;
+                }
+                if transform.translation.y + height > WINDOW_HEIGHT / 2.0
+                || transform.translation.y - height < -WINDOW_HEIGHT / 2.0
+                {
+                    velocity.velocity.y *= -1.0;
+                }
+            }
+            _ => {}
         }
     }
 }
