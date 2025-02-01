@@ -4,7 +4,7 @@ use rand::*;
 
 pub struct SpawnShapesPlugin;
 
-const MAX_SHAPES: i32 = 6;
+const MAX_SHAPES: i32 = 7;
 const CIRCLE_SIZE: f32 = 50.0;
 const RECTANGLE_SIZE: (f32, f32) = (100.0, 75.0);
 

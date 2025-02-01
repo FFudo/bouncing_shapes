@@ -111,9 +111,9 @@ fn apply_wall_collision(mut query: Query<(&mut Velocity, &Transform, &ShapeType)
                     velocity.velocity.y *= -1.0;
                 }
             }
-            ShapeType::Triangle(v1, v2, v3) => {
+            ShapeType::Triangle(v1, v2  , v3 ) => {
                 if transform.translation.x + v3.x > WINDOW_WIDTH / 2.0
-                    || transform.translation.x + v2.x < -WINDOW_WIDTH / 2.0
+                || transform.translation.x + v2.x < -WINDOW_WIDTH / 2.0
                 {
                     velocity.velocity.x *= -1.0;
                 }
