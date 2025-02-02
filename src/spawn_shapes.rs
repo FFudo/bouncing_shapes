@@ -1,10 +1,10 @@
 use crate::components::*;
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 use rand::*;
-
 pub struct SpawnShapesPlugin;
 
-const MAX_SHAPES: i32 = 7;
+const MAX_SHAPES: i32 = 5;
 const CIRCLE_SIZE: f32 = 50.0;
 const RECTANGLE_SIZE: (f32, f32) = (100.0, 75.0);
 
@@ -28,22 +28,30 @@ fn spawn_shapes(
         commands.spawn((
             Mesh2d(shape.0),
             MeshMaterial2d(materials.add(color)),
+            RigidBody::Dynamic,
+            Velocity {
+                linvel: Vec2::ZERO,
+                angvel: 0.0,
+            },
             Transform::from_xyz(
                 rng.gen_range(-200..200) as f32,
                 rng.gen_range(-200..200) as f32,
-                i as f32,
+                rng.gen_range(0..=MAX_SHAPES) as f32,
             ),
-            Impuls,
-            Velocity {
-                velocity: Vec2::ZERO,
-                friction: 0.9,
-            },
             shape.1,
+            Ccd::enabled(),
+            shape.2,
+            ExternalImpulse {
+                impulse: Vec2::ZERO,
+                torque_impulse: 0.0
+            }
         ));
     }
 }
 
-fn get_random_shapes(mut meshes: ResMut<'_, Assets<Mesh>>) -> Vec<(Handle<Mesh>, ShapeType)> {
+fn get_random_shapes(
+    mut meshes: ResMut<'_, Assets<Mesh>>,
+) -> Vec<(Handle<Mesh>, ShapeType, Collider)> {
     let mut shapes = Vec::new();
     let mut rng = rand::thread_rng();
 
@@ -52,31 +60,36 @@ fn get_random_shapes(mut meshes: ResMut<'_, Assets<Mesh>>) -> Vec<(Handle<Mesh>,
             0 => {
                 shapes.push((
                     meshes.add(Circle::new(CIRCLE_SIZE)),
-                    ShapeType::Circle(CIRCLE_SIZE)
+                    ShapeType::Circle(CIRCLE_SIZE),
+                    Collider::ball(CIRCLE_SIZE),
                 ));
             }
             1 => {
                 shapes.push((
                     meshes.add(Rectangle::new(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)),
-                    ShapeType::Rectangle(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)
+                    ShapeType::Rectangle(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1),
+                    Collider::cuboid(RECTANGLE_SIZE.0 / 2.0, RECTANGLE_SIZE.1 / 2.0),
                 ));
             }
             2 => {
                 shapes.push((
                     meshes.add(Annulus::new(CIRCLE_SIZE / 2.0, CIRCLE_SIZE)),
-                    ShapeType::Annulus(CIRCLE_SIZE / 2.0, CIRCLE_SIZE)
+                    ShapeType::Annulus(CIRCLE_SIZE / 2.0, CIRCLE_SIZE),
+                    Collider::ball(CIRCLE_SIZE),
                 ));
             }
             3 => {
                 shapes.push((
                     meshes.add(Rhombus::new(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)),
-                    ShapeType::Rhombus(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)
+                    ShapeType::Rhombus(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1),
+                    Collider::cuboid(RECTANGLE_SIZE.0 / 2.0, RECTANGLE_SIZE.1 / 2.0),
                 ));
             }
             4 => {
                 shapes.push((
                     meshes.add(RegularPolygon::new(CIRCLE_SIZE, 12)),
-                    ShapeType::RegularPolygon(CIRCLE_SIZE, 12)
+                    ShapeType::RegularPolygon(CIRCLE_SIZE, 12),
+                    Collider::ball(CIRCLE_SIZE),
                 ));
             }
             5 => {
@@ -84,12 +97,18 @@ fn get_random_shapes(mut meshes: ResMut<'_, Assets<Mesh>>) -> Vec<(Handle<Mesh>,
                     meshes.add(Triangle2d::new(
                         Vec2::Y * 50.0,
                         Vec2::new(-50.0, -50.0),
-                        Vec2::new(50.0, -50.0)
+                        Vec2::new(50.0, -50.0),
                     )),
                     ShapeType::Triangle(
                         Vec2::Y * 50.0,
                         Vec2::new(-50.0, -50.0),
-                        Vec2::new(50.0, -50.0))
+                        Vec2::new(50.0, -50.0),
+                    ),
+                    Collider::triangle(
+                        Vec2::Y * 50.0,
+                        Vec2::new(-50.0, -50.0),
+                        Vec2::new(50.0, -50.0),
+                    ),
                 ));
             }
             _ => {}
