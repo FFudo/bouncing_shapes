@@ -30,7 +30,7 @@ fn main() {
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugins(RapierDebugRenderPlugin::default())
         .add_systems(Startup, setup)
-        .add_systems(Update, (apply_impuls, apply_wall_collision).chain())
+        .add_systems(Update, apply_impuls)
         .run();
 }
 
@@ -57,52 +57,6 @@ fn apply_impuls(
                     rng.gen_range(1..10) as f32 * dir_y * 100000.0,
                 );
             }
-        }
-    }
-}
-
-fn apply_wall_collision(mut query: Query<(&mut Velocity, &Transform, &ShapeType)>) {
-    for (mut velocity, transform, shapetype) in query.iter_mut() {
-        match shapetype {
-            ShapeType::Circle(radius)
-            | ShapeType::Annulus(_, radius)
-            | ShapeType::RegularPolygon(radius, _) => {
-                if transform.translation.x + radius > WINDOW_WIDTH / 2.0
-                    || transform.translation.x - radius < -WINDOW_WIDTH / 2.0
-                {
-                    velocity.linvel.x *= -1.0;
-                }
-                if transform.translation.y + radius > WINDOW_HEIGHT / 2.0
-                    || transform.translation.y - radius < -WINDOW_HEIGHT / 2.0
-                {
-                    velocity.linvel.y *= -1.0;
-                }
-            }
-            ShapeType::Rectangle(width, height) | ShapeType::Rhombus(width, height) => {
-                if transform.translation.x + (width / 2.0) > WINDOW_WIDTH / 2.0
-                    || transform.translation.x - (width / 2.0) < -WINDOW_WIDTH / 2.0
-                {
-                    velocity.linvel.x *= -1.0;
-                }
-                if transform.translation.y + (height / 2.0) > WINDOW_HEIGHT / 2.0
-                    || transform.translation.y - (height / 2.0) < -WINDOW_HEIGHT / 2.0
-                {
-                    velocity.linvel.y *= -1.0;
-                }
-            }
-            ShapeType::Triangle(v1, v2, v3) => {
-                if transform.translation.x + v3.x > WINDOW_WIDTH / 2.0
-                    || transform.translation.x + v2.x < -WINDOW_WIDTH / 2.0
-                {
-                    velocity.linvel.x *= -1.0;
-                }
-                if transform.translation.y + v1.y > WINDOW_HEIGHT / 2.0
-                    || transform.translation.y + v2.y < -WINDOW_HEIGHT / 2.0
-                {
-                    velocity.linvel.y *= -1.0;
-                }
-            }
-            _ => {}
         }
     }
 }
