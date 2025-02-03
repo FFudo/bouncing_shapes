@@ -12,3 +12,6 @@ pub enum ShapeType {
     RegularPolygon(f32, usize), // radius, sides
     Triangle(Vec2, Vec2, Vec2), // vertices
 }
+
+#[derive(Component)]
+pub struct NeedsCollider;

@@ -1,5 +1,5 @@
 use crate::components::*;
-use bevy::prelude::*;
+use bevy::{prelude::*, render::mesh::VertexAttributeValues};
 use bevy_rapier2d::prelude::*;
 use rand::*;
 pub struct SpawnShapesPlugin;
@@ -10,7 +10,7 @@ const RECTANGLE_SIZE: (f32, f32) = (100.0, 75.0);
 
 impl Plugin for SpawnShapesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_shapes);
+        app.add_systems(Startup, (spawn_shapes, add_collider_to_entity).chain());
     }
 }
 
@@ -38,9 +38,9 @@ fn spawn_shapes(
                 rng.gen_range(-200..200) as f32,
                 rng.gen_range(0..=MAX_SHAPES) as f32,
             ),
+            NeedsCollider,
             shape.1,
             Ccd::enabled(),
-            shape.2,
             ExternalImpulse {
                 impulse: Vec2::ZERO,
                 torque_impulse: 0.0
@@ -115,4 +115,34 @@ fn get_random_shapes(
         }
     }
     return shapes;
+}
+
+
+fn add_collider_to_entity(
+    mut commands: Commands,
+    query: Query<(Entity, &mut Mesh2d), With<NeedsCollider>>,
+    meshes: Res<Assets<Mesh>>,
+) {
+    for (entity, mesh_handle) in query.iter() {
+        if let Some(mesh) = meshes.get(&mesh_handle.0) {
+            if let Some(vertices) = extract_vertices_from_mesh(mesh) {
+                if let Some(collider) = Collider::convex_hull(&vertices) {
+                    commands.entity(entity).insert(collider);
+                }
+            }
+        }
+    }
+}
+
+
+fn extract_vertices_from_mesh(mesh: &Mesh) -> Option<Vec<Vec2>> {
+    if let Some(VertexAttributeValues::Float32x3(positions) ) = mesh.attribute(Mesh::ATTRIBUTE_POSITION.id) {
+        let vertices: Vec<Vec2> = positions
+        .iter()
+        .map(|&[x, y, _]| Vec2::new(x, y))
+        .collect();
+        Some(vertices)
+    } else {
+        None
+    }
 }
