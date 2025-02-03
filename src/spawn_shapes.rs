@@ -47,6 +47,8 @@ fn spawn_shapes(
                 impulse: Vec2::ZERO,
                 torque_impulse: 0.0,
             },
+            Restitution::coefficient(0.9),
+            Friction::coefficient(0.0)
         ));
     }
 }
@@ -56,33 +58,28 @@ fn spawn_walls(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    let positions: [(f32, f32); 4] = [
-        (0.0, WINDOW_HEIGHT / 2.0),
-        (0.0, -WINDOW_HEIGHT / 2.0),
-        (WINDOW_WIDTH / 2.0, 0.0),
-        (-WINDOW_WIDTH / 2.0, 0.0),
+    let wall_color = Color::hsl(360.0, 0.85, 0.6);
+    let wall_positions: [(f32, f32, bool); 4] = [
+        (0.0, WINDOW_HEIGHT / 2.0, false),     // Top wall
+        (0.0, -WINDOW_HEIGHT / 2.0, false),    // Bottom wall
+        (WINDOW_WIDTH / 2.0, 0.0, true),       // Right wall
+        (-WINDOW_WIDTH / 2.0, 0.0, true),      // Left wall
     ];
 
-    for pos in positions.iter() {
-        if pos.0 != 0.0 {
-            commands.spawn((
-                Mesh2d(meshes.add(Rectangle::new(50.0, WINDOW_HEIGHT))),
-                MeshMaterial2d(
-                    materials.add(ColorMaterial::from_color(Color::hsl(420.0, 0.95, 0.7))),
-                ),
-                NeedsCollider,
-                Transform::from_xyz(pos.0, pos.1, 1.0),
-            ));
+    for (x, y, is_vertical) in wall_positions {
+        let (width, height) = if is_vertical {
+            (50.0, WINDOW_HEIGHT)
         } else {
-            commands.spawn((
-                Mesh2d(meshes.add(Rectangle::new(WINDOW_WIDTH, 50.0))),
-                MeshMaterial2d(
-                    materials.add(ColorMaterial::from_color(Color::hsl(420.0, 0.95, 0.7))),
-                ),
-                NeedsCollider,
-                Transform::from_xyz(pos.0, pos.1, 1.0),
-            ));
-        }
+            (WINDOW_WIDTH, 50.0)
+        };
+
+        commands.spawn((
+            Mesh2d(meshes.add(Rectangle::new(width, height))),
+            MeshMaterial2d(materials.add(ColorMaterial::from_color(wall_color))),
+            NeedsCollider,
+            Transform::from_xyz(x, y, 1.0),
+            RigidBody::Fixed
+        ));
     }
 }
 
