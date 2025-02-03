@@ -51,7 +51,7 @@ fn spawn_shapes(
 
 fn get_random_shapes(
     mut meshes: ResMut<'_, Assets<Mesh>>,
-) -> Vec<(Handle<Mesh>, ShapeType, Collider)> {
+) -> Vec<(Handle<Mesh>, ShapeType)> {
     let mut shapes = Vec::new();
     let mut rng = rand::thread_rng();
 
@@ -61,35 +61,30 @@ fn get_random_shapes(
                 shapes.push((
                     meshes.add(Circle::new(CIRCLE_SIZE)),
                     ShapeType::Circle(CIRCLE_SIZE),
-                    Collider::ball(CIRCLE_SIZE),
                 ));
             }
             1 => {
                 shapes.push((
                     meshes.add(Rectangle::new(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)),
                     ShapeType::Rectangle(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1),
-                    Collider::cuboid(RECTANGLE_SIZE.0 / 2.0, RECTANGLE_SIZE.1 / 2.0),
                 ));
             }
             2 => {
                 shapes.push((
                     meshes.add(Annulus::new(CIRCLE_SIZE / 2.0, CIRCLE_SIZE)),
                     ShapeType::Annulus(CIRCLE_SIZE / 2.0, CIRCLE_SIZE),
-                    Collider::ball(CIRCLE_SIZE),
                 ));
             }
             3 => {
                 shapes.push((
                     meshes.add(Rhombus::new(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1)),
                     ShapeType::Rhombus(RECTANGLE_SIZE.0, RECTANGLE_SIZE.1),
-                    Collider::cuboid(RECTANGLE_SIZE.0 / 2.0, RECTANGLE_SIZE.1 / 2.0),
                 ));
             }
             4 => {
                 shapes.push((
                     meshes.add(RegularPolygon::new(CIRCLE_SIZE, 12)),
                     ShapeType::RegularPolygon(CIRCLE_SIZE, 12),
-                    Collider::ball(CIRCLE_SIZE),
                 ));
             }
             5 => {
@@ -100,11 +95,6 @@ fn get_random_shapes(
                         Vec2::new(50.0, -50.0),
                     )),
                     ShapeType::Triangle(
-                        Vec2::Y * 50.0,
-                        Vec2::new(-50.0, -50.0),
-                        Vec2::new(50.0, -50.0),
-                    ),
-                    Collider::triangle(
                         Vec2::Y * 50.0,
                         Vec2::new(-50.0, -50.0),
                         Vec2::new(50.0, -50.0),
