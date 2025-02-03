@@ -8,8 +8,8 @@ mod spawn_shapes;
 use crate::components::*;
 use crate::spawn_shapes::SpawnShapesPlugin;
 
-const WINDOW_WIDTH: f32 = 1080.0;
-const WINDOW_HEIGHT: f32 = 720.0;
+pub const WINDOW_WIDTH: f32 = 1080.0;
+pub const WINDOW_HEIGHT: f32 = 720.0;
 
 fn main() {
     App::new()

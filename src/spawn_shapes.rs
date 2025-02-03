@@ -1,4 +1,4 @@
-use crate::components::*;
+use crate::{components::*, WINDOW_HEIGHT, WINDOW_WIDTH};
 use bevy::{prelude::*, render::mesh::VertexAttributeValues};
 use bevy_rapier2d::prelude::*;
 use rand::*;
@@ -10,7 +10,10 @@ const RECTANGLE_SIZE: (f32, f32) = (100.0, 75.0);
 
 impl Plugin for SpawnShapesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, (spawn_shapes, add_collider_to_entity).chain());
+        app.add_systems(
+            Startup,
+            (spawn_shapes, spawn_walls, add_collider_to_entity).chain(),
+        );
     }
 }
 
@@ -39,19 +42,51 @@ fn spawn_shapes(
                 rng.gen_range(0..=MAX_SHAPES) as f32,
             ),
             NeedsCollider,
-            shape.1,
             Ccd::enabled(),
             ExternalImpulse {
                 impulse: Vec2::ZERO,
-                torque_impulse: 0.0
-            }
+                torque_impulse: 0.0,
+            },
         ));
     }
 }
 
-fn get_random_shapes(
-    mut meshes: ResMut<'_, Assets<Mesh>>,
-) -> Vec<(Handle<Mesh>, ShapeType)> {
+fn spawn_walls(
+    mut commands: Commands,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+) {
+    let positions: [(f32, f32); 4] = [
+        (0.0, WINDOW_HEIGHT / 2.0),
+        (0.0, -WINDOW_HEIGHT / 2.0),
+        (WINDOW_WIDTH / 2.0, 0.0),
+        (-WINDOW_WIDTH / 2.0, 0.0),
+    ];
+
+    for pos in positions.iter() {
+        if pos.0 != 0.0 {
+            commands.spawn((
+                Mesh2d(meshes.add(Rectangle::new(50.0, WINDOW_HEIGHT))),
+                MeshMaterial2d(
+                    materials.add(ColorMaterial::from_color(Color::hsl(420.0, 0.95, 0.7))),
+                ),
+                NeedsCollider,
+                Transform::from_xyz(pos.0, pos.1, 1.0),
+            ));
+        } else {
+            commands.spawn((
+                Mesh2d(meshes.add(Rectangle::new(WINDOW_WIDTH, 50.0))),
+                MeshMaterial2d(
+                    materials.add(ColorMaterial::from_color(Color::hsl(420.0, 0.95, 0.7))),
+                ),
+                NeedsCollider,
+                Transform::from_xyz(pos.0, pos.1, 1.0),
+            ));
+        }
+    }
+}
+
+fn get_random_shapes(mut meshes: ResMut<'_, Assets<Mesh>>) -> Vec<(Handle<Mesh>, ShapeType)> {
     let mut shapes = Vec::new();
     let mut rng = rand::thread_rng();
 
@@ -107,7 +142,6 @@ fn get_random_shapes(
     return shapes;
 }
 
-
 fn add_collider_to_entity(
     mut commands: Commands,
     query: Query<(Entity, &mut Mesh2d), With<NeedsCollider>>,
@@ -124,13 +158,11 @@ fn add_collider_to_entity(
     }
 }
 
-
 fn extract_vertices_from_mesh(mesh: &Mesh) -> Option<Vec<Vec2>> {
-    if let Some(VertexAttributeValues::Float32x3(positions) ) = mesh.attribute(Mesh::ATTRIBUTE_POSITION.id) {
-        let vertices: Vec<Vec2> = positions
-        .iter()
-        .map(|&[x, y, _]| Vec2::new(x, y))
-        .collect();
+    if let Some(VertexAttributeValues::Float32x3(positions)) =
+        mesh.attribute(Mesh::ATTRIBUTE_POSITION.id)
+    {
+        let vertices: Vec<Vec2> = positions.iter().map(|&[x, y, _]| Vec2::new(x, y)).collect();
         Some(vertices)
     } else {
         None
