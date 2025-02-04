@@ -123,7 +123,7 @@ fn add_collider_to_entity(
     meshes: Res<Assets<Mesh>>,
 ) {
     for (entity, mesh_handle) in query.iter() {
-        if let Some(mesh) = meshes.get(&mesh_handle.0) {
+        if let Some(mesh) = meshes.get(&*mesh_handle) {
             if let Some(vertices) = extract_vertices_from_mesh(mesh) {
                 if let Some(collider) = Collider::convex_hull(&vertices) {
                     commands.entity(entity).insert(collider);

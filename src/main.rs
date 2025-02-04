@@ -3,13 +3,15 @@ use bevy_rapier2d::prelude::*;
 use rand::*;
 
 mod components;
+mod player_plugin;
 mod spawn_shapes;
 
-use crate::components::*;
-use crate::spawn_shapes::SpawnShapesPlugin;
+use components::*;
+use player_plugin::PlayerPlugin;
+use spawn_shapes::SpawnShapesPlugin;
 
-pub const WINDOW_WIDTH: f32 = 1080.0;
-pub const WINDOW_HEIGHT: f32 = 720.0;
+pub const WINDOW_WIDTH: f32 = 1920.0;
+pub const WINDOW_HEIGHT: f32 = 1080.0;
 
 fn main() {
     App::new()
@@ -26,6 +28,7 @@ fn main() {
             exit_condition: ExitCondition::OnPrimaryClosed,
             close_when_requested: true,
         }))
+        .add_plugins(PlayerPlugin)
         .add_plugins(SpawnShapesPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugins(RapierDebugRenderPlugin::default())
