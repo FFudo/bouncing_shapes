@@ -1,10 +1,12 @@
 use bevy::{prelude::*, window::*};
 use bevy_rapier2d::prelude::*;
+use collider_plugin::ColliderPlugin;
 use rand::*;
 
 mod components;
 mod player_plugin;
 mod spawn_shapes;
+mod collider_plugin;
 
 use components::*;
 use player_plugin::PlayerPlugin;
@@ -28,10 +30,10 @@ fn main() {
             exit_condition: ExitCondition::OnPrimaryClosed,
             close_when_requested: true,
         }))
-        .add_plugins(PlayerPlugin)
-        .add_plugins(SpawnShapesPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugins(RapierDebugRenderPlugin::default())
+        .add_plugins((PlayerPlugin, SpawnShapesPlugin))
+        .add_plugins(ColliderPlugin)
         .add_systems(Startup, setup)
         .add_systems(Update, apply_impuls)
         .run();

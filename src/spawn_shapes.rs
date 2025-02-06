@@ -1,5 +1,5 @@
 use crate::{components::*, WINDOW_HEIGHT, WINDOW_WIDTH};
-use bevy::{prelude::*, render::mesh::VertexAttributeValues};
+use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use rand::*;
 pub struct SpawnShapesPlugin;
@@ -12,7 +12,7 @@ impl Plugin for SpawnShapesPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Startup,
-            (spawn_shapes, spawn_walls, add_collider_to_entity).chain(),
+            (spawn_shapes, spawn_walls).chain(),
         );
     }
 }
@@ -58,7 +58,7 @@ fn spawn_walls(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    let wall_color = Color::hsl(360.0, 0.85, 0.6);
+    let wall_color = Color::hsl(360.0, 0.1, 0.1);
     let wall_positions: [(f32, f32, bool); 4] = [
         (0.0, WINDOW_HEIGHT / 2.0, false),     // Top wall
         (0.0, -WINDOW_HEIGHT / 2.0, false),    // Bottom wall
@@ -117,29 +117,3 @@ fn get_random_shapes(mut meshes: ResMut<'_, Assets<Mesh>>) -> Vec<Handle<Mesh>> 
     return shapes;
 }
 
-fn add_collider_to_entity(
-    mut commands: Commands,
-    query: Query<(Entity, &mut Mesh2d), With<NeedsCollider>>,
-    meshes: Res<Assets<Mesh>>,
-) {
-    for (entity, mesh_handle) in query.iter() {
-        if let Some(mesh) = meshes.get(&*mesh_handle) {
-            if let Some(vertices) = extract_vertices_from_mesh(mesh) {
-                if let Some(collider) = Collider::convex_hull(&vertices) {
-                    commands.entity(entity).insert(collider);
-                }
-            }
-        }
-    }
-}
-
-fn extract_vertices_from_mesh(mesh: &Mesh) -> Option<Vec<Vec2>> {
-    if let Some(VertexAttributeValues::Float32x3(positions)) =
-        mesh.attribute(Mesh::ATTRIBUTE_POSITION.id)
-    {
-        let vertices: Vec<Vec2> = positions.iter().map(|&[x, y, _]| Vec2::new(x, y)).collect();
-        Some(vertices)
-    } else {
-        None
-    }
-}
