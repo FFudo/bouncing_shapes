@@ -49,16 +49,16 @@ fn player_movement(
     let mut direction = Vec2::ZERO;
 
     if keys.pressed(KeyCode::KeyW) {
-        direction.y += 1.0;
+        direction.y = 1.0;
     }
     if keys.pressed(KeyCode::KeyS) {
-        direction.y -= 1.0;
+        direction.y = 1.0;
     }
     if keys.pressed(KeyCode::KeyD) {
-        direction.x += 1.0;
+        direction.x = 1.0;
     }
     if keys.pressed(KeyCode::KeyA) {
-        direction.x -= 1.0;
+        direction.x = 1.0;
     }
 
     if direction.length() > 0.0 {
