@@ -6,7 +6,7 @@ use crate::components::*;
 pub struct PlayerPlugin;
 
 const ACCELERATION: f32 = 1500.0;
-const DECELERATION: f32 = 1300.0;
+const DECELERATION: f32 = 1400.0;
 const MAX_SPEED: f32 = 500.0;
 
 impl Plugin for PlayerPlugin {
@@ -32,7 +32,7 @@ fn spawn_player(
             angvel: 0.0,
         },
         Ccd::enabled(),
-        Friction::coefficient(0.95),
+        Friction::coefficient(0.5),
         NeedsCollider,
         Player,
     ));
